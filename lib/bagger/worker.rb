@@ -1,8 +1,10 @@
 
 module Bagger
   class Worker
-    def work
-      # Suspiciously empty.
+    @queue = :bag_ingest
+
+    def self.perform(institution_code, bag_file)
+      puts "Processing #{bag_file} for #{institution_code}."
     end
   end
 end

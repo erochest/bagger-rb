@@ -1,6 +1,36 @@
 #!/usr/bin/env ruby
 
+
+require 'pathname'
+
+require 'listen'
+require 'resque'
+
 require 'bagger'
 
-Bagger::Worker.new
+
+module Bagger
+  def self.main
+    path = ARGV[0]
+
+    if path.nil?
+      puts "usage: bag-ingest PATH"
+    else
+      puts "Listening to #{path}"
+      Listen.to!(path, :filter => /\.zip$/) do |modified, added, removed|
+        added.each do |a|
+          institution = parse_institution a
+          puts "Enqueuing #{a} (#{institution})"
+          Resque.enqueue(Bagger::Worker, institution, a)
+        end
+      end
+    end
+  end
+
+  def self.parse_institution(pathname)
+    Pathname.new(pathname).dirname.basename.to_s
+  end
+end
+
+Bagger.main
 
