@@ -43,3 +43,17 @@ end
 
 # Use debugger
 # gem 'debugger', group: [:development, :test]
+
+# For controlling the system and used by various parts
+gem 'foreman'
+gem 'resque'
+
+# For the ingest script
+gem 'listen'
+
+# For the processor
+gem 'bagit', :git => 'https://github.com/erochest/bagit.git'
+
+# For the monitor
+gem 'devise'
+
