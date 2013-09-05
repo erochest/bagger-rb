@@ -29,4 +29,6 @@ ActiveRecord::Schema.define(version: 20130905190700) do
     t.datetime "updated_at"
   end
 
+  add_index "institutions", ["code"], name: "index_institutions_on_code", unique: true
+
 end
