@@ -1,0 +1,44 @@
+one:
+        name: Columbia University
+        code: columbia
+
+two:
+        name: Duke University
+        code: duke
+
+three:
+        name: Johns Hopkins University
+        code: johns-hopkins
+
+four:
+        name: North Carolina State University
+        code: ncs
+
+five:
+        name: Stanford University
+        code: stanford
+
+six:
+        name: Syracuse University
+        code: syracuse
+
+seven:
+        name: University of Michigan
+        code: um
+
+eight:
+        name: University of Maryland
+        code: umd
+
+nine:
+        name: University of North Carolina, Chapel Hill
+        code: unc-ch
+
+ten:
+        name: University of Notre Dame
+        code: und
+
+eleven:
+        name: University of Virginia
+        code: uva
+
