@@ -6,11 +6,13 @@ require 'tempfile'
 require 'bagit'
 require 'zip'
 
+require 'bagger/submitter'
 require 'bagger/validator'
 
 
 module Bagger
   class Worker
+    include Bagger::Submitter
     include Bagger::Validator
 
     @queue = :bag_ingest
@@ -18,9 +20,12 @@ module Bagger
     def self.perform(institution_code, bag_file, dest_dir)
       worker = Bagger::Worker.new(institution_code, bag_file, dest_dir)
       worker.unzip
-      worker.validate
-      # worker.submit
-      worker.clean_up
+      begin
+        worker.validate
+        worker.submit
+      rescue
+        worker.clean_up
+      end
     end
 
     attr_reader :institution_code, :bag_file, :dest_dir, :bag
@@ -28,7 +33,7 @@ module Bagger
     def initialize(institution_code, bag_file, dest_dir)
       @institution_code = institution_code
       @bag_file         = bag_file
-      @dest_dir         = dest_dir
+      @dest_dir         = Pathname.new dest_dir
     end
 
     def unzip
