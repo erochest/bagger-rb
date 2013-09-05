@@ -2,6 +2,7 @@
 
 require 'pathname'
 require 'tempfile'
+require 'yaml'
 
 require 'bagit'
 require 'zip'
@@ -28,12 +29,13 @@ module Bagger
       end
     end
 
-    attr_reader :institution_code, :bag_file, :dest_dir, :bag
+    attr_reader :institution_code, :bag_file, :dest_dir, :bag, :db_config
 
     def initialize(institution_code, bag_file, dest_dir)
       @institution_code = institution_code
       @bag_file         = bag_file
       @dest_dir         = Pathname.new dest_dir
+      @db_config        = read_db_config
     end
 
     def unzip
@@ -64,6 +66,12 @@ module Bagger
       tmp_file.unlink
 
       Pathname.new(tmp_path)
+    end
+
+    # TODO: The location and key should be configurable.
+    def read_db_config
+      config  = YAML.load_file('config/database.yml')
+      config['development']
     end
   end
 end
