@@ -9,6 +9,11 @@ require 'resque'
 require 'bagger'
 
 
+# TODO: Need to add a layer on top of the listener that also watches the
+# `modified` notifications and only sends it on to resque when it's no longer
+# being changed. This is especially a big deal for large files that may take a
+# while to copy.
+
 module Bagger
   def self.main
     listen_path = ARGV[0]
