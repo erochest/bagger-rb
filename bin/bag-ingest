@@ -21,6 +21,7 @@ module Bagger
         added.each do |a|
           institution = parse_institution a
           puts "Enqueuing #{a} (#{institution})"
+          STDOUT.flush
           Resque.enqueue(Bagger::Worker, institution, a)
         end
       end
