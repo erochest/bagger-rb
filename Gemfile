@@ -53,6 +53,7 @@ gem 'listen'
 
 # For the processor
 gem 'bagit', :git => 'https://github.com/erochest/bagit.git'
+gem 'rubyzip'
 
 # For the monitor
 gem 'devise'

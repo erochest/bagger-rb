@@ -11,18 +11,19 @@ require 'bagger'
 
 module Bagger
   def self.main
-    path = ARGV[0]
+    listen_path = ARGV[0]
+    dest_path   = ARGV[1]
 
-    if path.nil?
-      puts "usage: bag-ingest PATH"
+    if listen_path.nil? || dest_path.nil?
+      puts "usage: bag-ingest LISTEN-PATH DEST-PATH"
     else
-      puts "Listening to #{path}"
-      Listen.to!(path, :filter => /\.zip$/) do |modified, added, removed|
+      puts "Listening to #{listen_path}"
+      Listen.to!(listen_path, :filter => /\.zip$/) do |modified, added, removed|
         added.each do |a|
           institution = parse_institution a
           puts "Enqueuing #{a} (#{institution})"
           STDOUT.flush
-          Resque.enqueue(Bagger::Worker, institution, a)
+          Resque.enqueue(Bagger::Worker, institution, a, dest_path)
         end
       end
     end
