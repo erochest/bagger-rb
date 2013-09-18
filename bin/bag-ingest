@@ -25,11 +25,31 @@ module Bagger
       puts "Listening to #{listen_path}"
       Listen.to!(listen_path, :filter => /\.zip$/) do |modified, added, removed|
         added.each do |a|
-          institution = parse_institution a
-          puts "Enqueuing #{a} (#{institution})"
+          puts "Watching #{a}"
           STDOUT.flush
-          Resque.enqueue(Bagger::Worker, institution, a, dest_path)
+          Thread.new do
+            watch_enqueue(a, dest_path)
+          end
         end
+      end
+    end
+  end
+
+  def self.watch_enqueue(file_path, dest_path)
+    f    = File.new(file_path)
+    size = f.size
+
+    while true do
+      sleep(0.5)
+      puts "\tChecking. Size = #{size} / #{f.size}"
+      STDOUT.flush
+      if f.size == size
+        puts "Enqueuing #{file_path}"
+        STDOUT.flush
+        Resque.enqueue(Bagger::Worker, parse_institution(file_path), file_path, dest_path)
+        break
+      else
+        size = f.size
       end
     end
   end
