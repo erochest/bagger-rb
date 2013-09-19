@@ -18,9 +18,11 @@ module Bagger
     attr_reader :dest_file
 
     def submit_dest
-      bag_file = Pathname.new @bag_file
-      @dest_file = @dest_dir.join(@institution_code).join(bag_file.basename)
+      bag_file   = Pathname.new @bag_file
+      dest_dir   = @dest_dir.join(@institution_code)
+      @dest_file = dest_dir.join(bag_file.basename)
       puts "Submitting #{@bag_file} => #{@dest_file}"
+      FileUtils.mkdir(dest_dir) until Dir.exists?(dest_dir)
       FileUtils.mv(@bag_file, @dest_file)
     end
 
