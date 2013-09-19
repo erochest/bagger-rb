@@ -16,19 +16,33 @@ end
 
 module Bagger
   def self.main
-    listen_path = ARGV[0]
-    dest_path   = ARGV[1]
+    watch_path = ARGV[0]
+    dest_path  = ARGV[1]
 
-    if listen_path.nil? || dest_path.nil?
+    if watch_path.nil? || dest_path.nil?
       puts "usage: bag-ingest LISTEN-PATH DEST-PATH"
     else
-      puts "Listening to #{listen_path}"
-      Listen.to!(listen_path, :filter => /\.zip$/) do |modified, added, removed|
-        added.each do |a|
-          flush_out "Watching #{a}"
-          Thread.new do
-            watch_enqueue(a, dest_path)
-          end
+      watch(watch_path, dest_path)
+    end
+  end
+
+  def self.watch(watch_path, dest_path)
+    # puts "Watching #{watch_path}"
+    # notifier = INotify::Notifier.new
+    # notifier.watch(watch_path, :recursive, :close) do |event|
+      # p event
+    # end
+    # return
+
+    Listen.to!(watch_path, :filter => /\.zip$/) do |modified, added, removed|
+      p :modified, modified
+      p :added,    added
+      p :removed,  removed
+
+      added.each do |a|
+        flush_out "Watching #{a}"
+        Thread.new do
+          watch_enqueue(a, dest_path)
         end
       end
     end
