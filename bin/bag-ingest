@@ -70,10 +70,15 @@ module Bagger
     flush_out "is_open? #{filename}"
     ret_value = true
     IO.popen(['fuser', filename], :err=>[:child, :out]) do |out|
-      out.readlines.each do |line|
-        pid = line.split(':')[1].strip
-        if pid.empty?
-          ret_value = false
+      lines = out.readlines
+      if lines.empty?
+        ret_value = false
+      else
+        lines.each do |line|
+          pid = line.split(':')[1].strip
+          if pid.empty?
+            ret_value = false
+          end
         end
       end
     end
