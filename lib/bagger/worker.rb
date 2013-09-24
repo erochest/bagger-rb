@@ -1,5 +1,6 @@
 
 
+require 'logger'
 require 'pathname'
 require 'tempfile'
 require 'yaml'
@@ -36,10 +37,13 @@ module Bagger
       @bag_file         = bag_file
       @dest_dir         = Pathname.new dest_dir
       @db_config        = read_db_config
+      # TODO: Should be configurable
+      @logger           = Logger.new(STDERR)
+      @logger.level     = Logger::INFO
     end
 
     def unzip
-      puts "Unzipping #{@bag_file}"
+      @logger.info("Unzipping #{@bag_file}")
       tmp = get_temp_path
 
       Zip::File.foreach(@bag_file) do |entry|
@@ -52,7 +56,7 @@ module Bagger
     end
 
     def clean_up
-      puts "clean up #{@bag.bag_dir}"
+      @logger.info("clean up #{@bag.bag_dir}")
       Pathname.new(@bag.bag_dir).rmtree
     end
 
