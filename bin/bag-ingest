@@ -3,7 +3,7 @@
 
 require 'pathname'
 
-require 'listen'
+require 'rb-inotify'
 require 'resque'
 
 require 'bagger'
@@ -27,62 +27,16 @@ module Bagger
   end
 
   def self.watch(watch_path, dest_path)
-    # puts "Watching #{watch_path}"
-    # notifier = INotify::Notifier.new
-    # notifier.watch(watch_path, :recursive, :close) do |event|
-      # p event
-    # end
-    # return
-
-    Listen.to!(watch_path, :filter => /\.zip$/) do |modified, added, removed|
-      p :modified, modified
-      p :added,    added
-      p :removed,  removed
-
-      added.each do |a|
-        flush_out "Watching #{a}"
-        Thread.new do
-          watch_enqueue(a, dest_path)
-        end
-      end
-    end
-  end
-
-  def self.watch_enqueue(file_path, dest_path)
-    period  = 0.5
-    backoff = 1.5
-
-    while true do
-      sleep(period)
-
-      if is_open?(file_path)
-        period *= backoff
-
-      else
+    flush_out "Watching #{watch_path}"
+    notifier = INotify::Notifier.new
+    notifier.watch(watch_path, :recursive, :close_write) do |event|
+      file_path = event.absolute_name
+      Thread.new do
         flush_out "Enqueuing #{file_path}"
         Resque.enqueue(Bagger::Worker, parse_institution(file_path), file_path, dest_path)
-        break
       end
     end
-  end
-
-  def self.is_open?(filename)
-    flush_out "is_open? #{filename}"
-    ret_value = true
-    IO.popen(['fuser', filename], :err=>[:child, :out]) do |out|
-      lines = out.readlines
-      if lines.empty?
-        ret_value = false
-      else
-        lines.each do |line|
-          pid = line.split(':')[1].strip
-          if pid.empty?
-            ret_value = false
-          end
-        end
-      end
-    end
-    ret_value
+    notifier.run
   end
 
   def self.parse_institution(pathname)

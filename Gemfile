@@ -49,7 +49,7 @@ gem 'foreman'
 gem 'resque'
 
 # For the ingest script
-gem 'listen'
+gem 'rb-inotify'
 
 # For the processor
 gem 'bagit', :git => 'https://github.com/erochest/bagit.git'
